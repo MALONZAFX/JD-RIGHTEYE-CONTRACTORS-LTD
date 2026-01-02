@@ -145,7 +145,6 @@
         </div>
     </div>
 </nav>
-
 <!-- CSS -->
 <style>
     .hero-video-section {
@@ -157,6 +156,35 @@
         align-items: center;
         color: white;
     }
+    
+    /* Background Slider */
+    .background-slider {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -3;
+        overflow: hidden;
+    }
+    
+    .bg-slide-track {
+        display: flex;
+        width: 300%;
+        height: 100%;
+        transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    
+    .bg-slide {
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        position: relative;
+    }
+    
+    /* Video background for first slide */
     .video-bg-container {
         position: absolute;
         top: 0;
@@ -165,11 +193,13 @@
         height: 100%;
         z-index: -2;
     }
+    
     .background-video {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
+    
     .video-overlay {
         position: absolute;
         top: 0;
@@ -179,58 +209,479 @@
         background: rgba(0, 0, 0, 0.6);
         z-index: -1;
     }
-    .hero-video-section .container {
-        position: relative;
-        z-index: 1;
-    }
-    .btn-white {
-        background: white;
-        color: #333;
-        border: none;
-    }
-    .btn-white:hover {
-        background: #f8f9fa;
-        color: #333;
-    }
-    .no-video .video-bg-container::before {
-        content: '';
+    
+    /* Image overlays for consistency */
+    .bg-overlay {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background-image: url('images/c3.jpg');
-        background-size: cover;
-        background-position: center;
-        display: block;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 1;
     }
-    </style>
     
-    <!-- HTML -->
-    <section class="hero-video-section">
-        <div class="video-bg-container">
-            <video class="background-video" autoplay muted loop playsinline poster="images/c3.jpg">
-                <source src="videos/construction-bg.mp4" type="video/mp4">
-                <source src="videos/construction-bg.webm" type="video/webm">
-                Your browser does not support the video tag.
-            </video>
+    .hero-video-section .container {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .btn-white {
+        background: white;
+        color: #333;
+        border: none;
+    }
+    
+    .btn-white:hover {
+        background: #f8f9fa;
+        color: #333;
+    }
+    
+    /* SLIDING TEXT ANIMATION */
+    .slider-text-container {
+        position: relative;
+        width: 100%;
+        min-height: 250px;
+        overflow: hidden;
+    }
+    
+    .slider-text-track {
+        display: flex;
+        transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        height: 100%;
+    }
+    
+    .text-slide {
+        min-width: 100%;
+        padding-right: 20px;
+        opacity: 0;
+        transform: translateX(30px);
+        transition: opacity 0.8s ease, transform 0.8s ease;
+        position: relative;
+    }
+    
+    .text-slide.active {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    
+    /* Slide indicators */
+    .slide-indicators {
+        display: flex;
+        gap: 12px;
+        margin-top: 30px;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .slide-indicator {
+        width: 40px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 2px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .slide-indicator.active {
+        background: #ffc107;
+        transform: scaleX(1.1);
+    }
+    
+    .slide-indicator:hover {
+        background: rgba(255, 255, 255, 0.6);
+    }
+    
+    /* Navigation arrows */
+    .slide-nav {
+        display: flex;
+        gap: 15px;
+        margin-top: 25px;
+    }
+    
+    .slide-nav-btn {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .slide-nav-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+    
+    .slide-nav-btn:active {
+        transform: translateY(0);
+    }
+    
+    /* Slide numbers */
+    .slide-number {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        z-index: 10;
+    }
+    
+    /* Text styling */
+    .text-slide h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 20px;
+        line-height: 1.2;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+    }
+    
+    .text-slide p {
+        font-size: 1.2rem;
+        line-height: 1.6;
+        margin-bottom: 30px;
+        max-width: 600px;
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .text-slide h1 {
+            font-size: 2.5rem;
+        }
+        
+        .text-slide p {
+            font-size: 1.1rem;
+        }
+        
+        .slide-nav-btn {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .bg-slide {
+            background-position: center center;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .text-slide h1 {
+            font-size: 2rem;
+        }
+        
+        .text-slide p {
+            font-size: 1rem;
+        }
+        
+        .slider-text-container {
+            min-height: 300px;
+        }
+        
+        .slide-number {
+            top: 5px;
+            right: 15px;
+            font-size: 12px;
+        }
+    }
+</style>
+
+<!-- HTML -->
+<section class="hero-video-section">
+    <!-- Background Slider -->
+    <div class="background-slider">
+        <div class="bg-slide-track" id="bgSlider">
+            <!-- Background for Slide 1 (Video) -->
+            <div class="bg-slide">
+                <div class="video-bg-container">
+                    <video class="background-video" autoplay muted loop playsinline poster="images/c3.jpg">
+                        <source src="videos/construction-bg.mp4" type="video/mp4">
+                        <source src="videos/construction-bg.webm" type="video/webm">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="bg-overlay"></div>
+            </div>
+            
+            <!-- Background for Slide 2 (Construction Site) -->
+            <div class="bg-slide" style="background-image: url('images/r1.JPG');">
+                <div class="bg-overlay"></div>
+            </div>
+            
+            <!-- Background for Slide 3 (Modern Architecture) -->
+            <div class="bg-slide" style="background-image: url('images/r3.JPG');">
+                <div class="bg-overlay"></div>
+            </div>
         </div>
-        <div class="video-overlay"></div>
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <div class="slider-text">
-                        <h1 class="mb-4">Building Excellence <br>Across Africa</h1>
-                        <p class="mb-4">JD Right Eye Contractors is committed to delivering excellence in every project with quality, innovation, and client satisfaction at our core.</p>
-                        <p>
-                            <a href="#services" class="btn btn-primary mr-3"><i class="fas fa-tools mr-2"></i>Our Services</a>
-                            <a href="#" class="btn btn-white" data-toggle="modal" data-target="#exampleModalCenter"><i class="fas fa-file-alt mr-2"></i>Request A Quote</a>
-                        </p>
+    </div>
+    
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <!-- Slide number indicator -->
+                <div class="slide-number">
+                    <span id="currentSlideNum">01</span> / <span id="totalSlidesNum">03</span>
+                </div>
+                
+                <div class="slider-text-container">
+                    <div class="slider-text-track" id="textSlider">
+                        <!-- Slide 1 -->
+                        <div class="text-slide active">
+                            <h1 style="
+    font-size: 3.5rem;
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 30px;
+    background: linear-gradient(45deg, #FFD700 0%, #FFEC8B 25%, #FFFACD 50%, #FFEC8B 75%, #FFD700 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    display: inline-block;
+">BUILDING EXCELLENCE <br>ACROSS AFRICA</h1>
+                            <p style="color: #f8f9fa;">JD Right Eye Contractors is committed to delivering excellence in every project with quality, innovation, and client satisfaction at our core.</p>
+                            <p>
+                                <a href="#services" class="btn btn-primary mr-3"><i class="fas fa-tools mr-2"></i>Our Services</a>
+                                <a href="#" class="btn btn-white" data-toggle="modal" data-target="#exampleModalCenter"><i class="fas fa-file-alt mr-2"></i>Request A Quote</a>
+                            </p>
+                        </div>
+                        
+                        <!-- Slide 2 -->
+                        <div class="text-slide">
+                            <h1 style="
+                            font-size: 3.5rem;
+                            font-weight: 900;
+                            line-height: 1.2;
+                            margin-bottom: 30px;
+                            background: linear-gradient(45deg, #FFD700 0%, #FFEC8B 25%, #FFFACD 50%, #FFEC8B 75%, #FFD700 100%);
+                            background-size: 200% auto;
+                            -webkit-background-clip: text;
+                            background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            color: transparent;
+                            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+                            display: inline-block;">QUALITY CONSTRUCTION<br>TIMELY DELIVERY</h1>
+                            <p style="color: #f8f9fa;">With 15+ years of experience, we specialize in residential, commercial, and industrial projects across East Africa, ensuring precision and reliability.</p>
+                            <p>
+                                <a href="#projects" class="btn btn-primary mr-3"><i class="fas fa-building mr-2"></i>View Projects</a>
+                                <a href="#contact-form" class="btn btn-white"><i class="fas fa-phone-alt mr-2"></i>Contact Us</a>
+                            </p>
+                        </div>
+                        
+                        <!-- Slide 3 -->
+                        <div class="text-slide">
+                            <h1 style="
+                            font-size: 3.5rem;
+                            font-weight: 900;
+                            line-height: 1.2;
+                            margin-bottom: 30px;
+                            background: linear-gradient(45deg, #FFD700 0%, #FFEC8B 25%, #FFFACD 50%, #FFEC8B 75%, #FFD700 100%);
+                            background-size: 200% auto;
+                            -webkit-background-clip: text;
+                            background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            color: transparent;
+                            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+                            display: inline-block;">INNOVATIVE SOLUTIONS<br>SUSTAINABLE FUTURE</h1>
+                            <p style="color: #f8f9fa;">We combine cutting-edge technology with sustainable practices to build structures that stand the test of time while protecting our environment.</p>
+                            <p>
+                                <a href="#about-section" class="btn btn-primary mr-3"><i class="fas fa-users mr-2"></i>About Us</a>
+                                <a href="#team-structure" class="btn btn-white"><i class="fas fa-sitemap mr-2"></i>Our Team</a>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Slide Indicators -->
+                    <div class="slide-indicators">
+                        <div class="slide-indicator active" data-slide="0"></div>
+                        <div class="slide-indicator" data-slide="1"></div>
+                        <div class="slide-indicator" data-slide="2"></div>
+                    </div>
+                    
+                    <!-- Navigation Arrows -->
+                    <div class="slide-nav">
+                        <button class="slide-nav-btn" id="prevSlide">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="slide-nav-btn" id="nextSlide">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
+
+<!-- JavaScript for Sliding Animation -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const textSlider = document.getElementById('textSlider');
+        const bgSlider = document.getElementById('bgSlider');
+        const textSlides = document.querySelectorAll('.text-slide');
+        const indicators = document.querySelectorAll('.slide-indicator');
+        const prevBtn = document.getElementById('prevSlide');
+        const nextBtn = document.getElementById('nextSlide');
+        const currentSlideNum = document.getElementById('currentSlideNum');
+        const totalSlidesNum = document.getElementById('totalSlidesNum');
+        
+        let currentSlide = 0;
+        const totalSlides = textSlides.length;
+        let autoSlideInterval;
+        const slideDuration = 6000; // 6 seconds per slide
+        
+        // Initialize total slides number
+        totalSlidesNum.textContent = totalSlides.toString().padStart(2, '0');
+        
+        // Function to update slide position
+        function updateSlide() {
+            // Move text track
+            textSlider.style.transform = `translateX(-${currentSlide * 100}%)`;
+            
+            // Move background track
+            bgSlider.style.transform = `translateX(-${currentSlide * (100/3)}%)`;
+            
+            // Update active classes
+            textSlides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentSlide);
+            });
+            
+            // Update indicators
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === currentSlide);
+            });
+            
+            // Update slide number
+            currentSlideNum.textContent = (currentSlide + 1).toString().padStart(2, '0');
+        }
+        
+        // Function to go to specific slide
+        function goToSlide(slideIndex) {
+            currentSlide = slideIndex;
+            if (currentSlide >= totalSlides) currentSlide = 0;
+            if (currentSlide < 0) currentSlide = totalSlides - 1;
+            updateSlide();
+            resetAutoSlide();
+        }
+        
+        // Function for next slide
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateSlide();
+        }
+        
+        // Function for previous slide
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateSlide();
+        }
+        
+        // Auto slide function
+        function startAutoSlide() {
+            autoSlideInterval = setInterval(nextSlide, slideDuration);
+        }
+        
+        // Reset auto slide timer
+        function resetAutoSlide() {
+            clearInterval(autoSlideInterval);
+            startAutoSlide();
+        }
+        
+        // Event listeners for indicators
+        indicators.forEach(indicator => {
+            indicator.addEventListener('click', function() {
+                const slideIndex = parseInt(this.getAttribute('data-slide'));
+                goToSlide(slideIndex);
+            });
+        });
+        
+        // Event listeners for navigation buttons
+        prevBtn.addEventListener('click', function() {
+            prevSlide();
+            resetAutoSlide();
+        });
+        
+        nextBtn.addEventListener('click', function() {
+            nextSlide();
+            resetAutoSlide();
+        });
+        
+        // Pause auto slide on hover
+        const sliderContainer = document.querySelector('.slider-text-container');
+        sliderContainer.addEventListener('mouseenter', function() {
+            clearInterval(autoSlideInterval);
+        });
+        
+        sliderContainer.addEventListener('mouseleave', function() {
+            startAutoSlide();
+        });
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                prevSlide();
+                resetAutoSlide();
+            } else if (e.key === 'ArrowRight') {
+                nextSlide();
+                resetAutoSlide();
+            }
+        });
+        
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        sliderContainer.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+            clearInterval(autoSlideInterval);
+        });
+        
+        sliderContainer.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+            startAutoSlide();
+        });
+        
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            
+            if (touchStartX - touchEndX > swipeThreshold) {
+                // Swipe left - next slide
+                nextSlide();
+                resetAutoSlide();
+            } else if (touchEndX - touchStartX > swipeThreshold) {
+                // Swipe right - previous slide
+                prevSlide();
+                resetAutoSlide();
+            }
+        }
+        
+        // Initialize
+        updateSlide(); // Set initial state
+        startAutoSlide();
+        
+        // Preload background images for smoother transitions
+        window.addEventListener('load', function() {
+            // Images are already in CSS, but we can force preload
+            const bgSlides = document.querySelectorAll('.bg-slide');
+            bgSlides.forEach(slide => {
+                const bgImage = slide.style.backgroundImage;
+                if (bgImage) {
+                    const img = new Image();
+                    img.src = bgImage.replace('url("', '').replace('")', '');
+                }
+            });
+        });
+    });
+</script>
 
 <style>
     /* Remove any default margins/padding causing white space */
